@@ -15,7 +15,7 @@
 ## GitHub操作
 
 - プッシュ: `gh repo push` または `git push origin main`
-- PR作成: `gh pr create --title "PRタイトル" --body "PR詳細"`
+- PR作成: `gh pr create --title "PRタイトル" --body "PR詳細"` (テスト項目は不要)
 - PR確認: `gh pr view`
 - コミット履歴: `gh repo view --commits`
 
