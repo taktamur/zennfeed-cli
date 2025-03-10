@@ -24,28 +24,49 @@ cd zennfeed-cli
 
 ## 使い方
 
+ZennFeed CLIはサブコマンド構造を採用しています。
+
+### フィード取得コマンド
+
 ```bash
 # 基本的な使用法（デフォルトで20件取得）
-deno run --allow-net mod.ts
+deno run --allow-net mod.ts feed
 
 # 取得する記事数を指定
-deno run --allow-net mod.ts --count=10
+deno run --allow-net mod.ts feed --count=10
 
 # トピックを指定して取得（例: TypeScript関連の記事）
-deno run --allow-net mod.ts --type=topic --keyword=typescript
+deno run --allow-net mod.ts feed --type=topic --keyword=typescript
 
 # 特定ユーザーの記事を取得
-deno run --allow-net mod.ts --type=user --keyword=taktamur
+deno run --allow-net mod.ts feed --type=user --keyword=taktamur
+
+# 最初の記事の内容も同時に取得
+deno run --allow-net mod.ts feed --first
 
 # 注意: topic/userタイプの場合はkeywordが必須
 # 以下のコマンドはエラーになります
-# deno run --allow-net mod.ts --type=topic
+# deno run --allow-net mod.ts feed --type=topic
+```
 
+### 記事取得コマンド
+
+```bash
 # URLから記事本文を抽出
-deno run --allow-net mod.ts --url https://zenn.dev/taktamur/articles/b5a26613e7261e
+deno run --allow-net mod.ts article --url https://zenn.dev/taktamur/articles/b5a26613e7261e
+```
 
-# 最新記事のリストを取得し、最初の記事の本文も取得
-deno run --allow-net mod.ts --content
+### ヘルプの表示
+
+```bash
+# 全体のヘルプ
+deno run --allow-net mod.ts --help
+
+# feedコマンドのヘルプ
+deno run --allow-net mod.ts feed --help
+
+# articleコマンドのヘルプ
+deno run --allow-net mod.ts article --help
 ```
 
 ## 開発
@@ -75,7 +96,7 @@ deno compile --allow-net mod.ts
 
 ## 出力例
 
-### 記事リスト
+### フィード出力（feed コマンド）
 
 ```json
 {
@@ -88,11 +109,38 @@ deno compile --allow-net mod.ts
       "author": "username"
     },
     ...
-  ]
+  ],
+  "message": "記事の詳細を取得するには: deno run --allow-net mod.ts article --url <記事のURL>"
 }
 ```
 
-### 記事本文（URLから抽出）
+### フィード出力（--first オプション付き）
+
+```json
+{
+  "articles": [
+    {
+      "title": "サンプル記事タイトル",
+      "link": "https://zenn.dev/username/articles/article-id",
+      "pubDate": "2023-04-01T12:00:00.000Z",
+      "pubDateFormatted": "2023/04/01 21:00",
+      "author": "username"
+    },
+    ...
+  ],
+  "message": "記事の詳細を取得するには: deno run --allow-net mod.ts article --url <記事のURL>",
+  "firstArticle": {
+    "title": "サンプル記事タイトル",
+    "content": "記事の本文テキスト...",
+    "author": "username",
+    "published": "2023-04-01",
+    "url": "https://zenn.dev/username/articles/article-id",
+    "tags": ["tag1", "tag2", "tag3"]
+  }
+}
+```
+
+### 記事本文（article コマンド）
 
 ```json
 {
