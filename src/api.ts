@@ -5,7 +5,7 @@ import { formatDate } from "./utils.ts";
 /**
  * フィルターに基づいてZennのフィードURLを生成する
  */
-function buildFeedUrl(filter: FeedFilter): string {
+export function buildFeedUrl(filter: FeedFilter): string {
   if (filter.type === "all") {
     return "https://zenn.dev/feed";
   } else if (filter.type === "topic") {
