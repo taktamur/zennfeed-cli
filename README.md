@@ -34,6 +34,10 @@ deno run --allow-net mod.ts --type=topic --keyword=llm
 
 # 特定ユーザーの記事を取得
 deno run --allow-net mod.ts --type=user --keyword=username
+
+# 注意: topic/userタイプの場合はkeywordが必須
+# 以下のコマンドはエラーになります
+# deno run --allow-net mod.ts --type=topic
 ```
 
 ## 開発

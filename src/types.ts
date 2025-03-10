@@ -25,3 +25,8 @@ export type Result<T, E> = {
 };
 
 export type FeedType = "all" | "topic" | "user";
+
+export type FeedFilter = 
+  | { type: "all" }
+  | { type: "topic"; keyword: string }
+  | { type: "user"; keyword: string };

@@ -1,25 +1,21 @@
 import { parseFeed } from "https://deno.land/x/rss@1.0.0/mod.ts";
-import { Article, ExtendedFeedEntry, FeedType, Result } from "./types.ts";
+import { Article, ExtendedFeedEntry, FeedFilter, Result } from "./types.ts";
 import { formatDate } from "./utils.ts";
 
 /**
  * Zennの最新記事を取得する
  */
 export async function fetchLatestArticles(
-  options: { count?: number; keyword?: string; type?: FeedType } = {}
+  options: { count?: number; filter?: FeedFilter } = {}
 ): Promise<Result<Article[], string>> {
   try {
-    const { count = 20, keyword = "", type = "all" } = options;
+    const { count = 20, filter = { type: "all" } } = options;
     let url = "https://zenn.dev/feed";
 
-    if (keyword) {
-      if (type === "topic") {
-        url = `https://zenn.dev/topics/${keyword}/feed`;
-      } else if (type === "user") {
-        url = `https://zenn.dev/${keyword}/feed`;
-      } else {
-        return { ok: false, error: "キーワードを指定する場合はタイプ(topic/user)も指定してください" };
-      }
+    if (filter.type === "topic") {
+      url = `https://zenn.dev/topics/${filter.keyword}/feed`;
+    } else if (filter.type === "user") {
+      url = `https://zenn.dev/${filter.keyword}/feed`;
     }
     
     const response = await fetch(url);
