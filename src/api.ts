@@ -3,6 +3,19 @@ import { Article, ExtendedFeedEntry, FeedFilter, Result } from "./types.ts";
 import { formatDate } from "./utils.ts";
 
 /**
+ * フィルターに基づいてZennのフィードURLを生成する
+ */
+function buildFeedUrl(filter: FeedFilter): string {
+  if (filter.type === "all") {
+    return "https://zenn.dev/feed";
+  } else if (filter.type === "topic") {
+    return `https://zenn.dev/topics/${filter.keyword}/feed`;
+  } else {
+    return `https://zenn.dev/${filter.keyword}/feed`;
+  }
+}
+
+/**
  * Zennの最新記事を取得する
  */
 export async function fetchLatestArticles(
@@ -10,13 +23,7 @@ export async function fetchLatestArticles(
 ): Promise<Result<Article[], string>> {
   try {
     const { count = 20, filter = { type: "all" } } = options;
-    let url = "https://zenn.dev/feed";
-
-    if (filter.type === "topic") {
-      url = `https://zenn.dev/topics/${filter.keyword}/feed`;
-    } else if (filter.type === "user") {
-      url = `https://zenn.dev/${filter.keyword}/feed`;
-    }
+    const url = buildFeedUrl(filter);
     
     const response = await fetch(url);
     
