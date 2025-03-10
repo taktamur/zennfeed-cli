@@ -40,11 +40,10 @@ async function main() {
 async function handleFeedCommand(args: string[]) {
   const parsedArgs = parse(args, {
     string: ["count", "keyword", "type"],
-    boolean: ["help", "first"],
+    boolean: ["help"],
     default: { count: "20", type: "all" },
     alias: {
       h: "help",
-      f: "first", // 最初の記事の内容も取得する
     },
   });
 
@@ -86,25 +85,12 @@ async function handleFeedCommand(args: string[]) {
     Deno.exit(1);
   }
   
-  // 最初の記事の内容も取得するオプションが指定されていて、記事が存在する場合
-  if (parsedArgs.first && result.value.length > 0) {
-    const firstArticle = result.value[0];
-    const articleResult = await extractContent(firstArticle.link);
-    
-    const output = {
-      articles: result.value,
-      message: "記事の詳細を取得するには: zennfeed article --url <記事のURL>",
-      firstArticle: articleResult.ok ? articleResult.value : { error: "記事本文の取得に失敗しました" }
-    };
-    console.log(JSON.stringify(output, null, 2));
-  } else {
-    // 通常の記事一覧のみを表示
-    const output = {
-      articles: result.value,
-      message: "記事の詳細を取得するには: zennfeed article --url <記事のURL>"
-    };
-    console.log(JSON.stringify(output, null, 2));
-  }
+  // 記事一覧のみを表示
+  const output = {
+    articles: result.value,
+    message: "記事の詳細を取得するには: zennfeed article --url <記事のURL>"
+  };
+  console.log(JSON.stringify(output, null, 2));
 }
 
 /**
@@ -185,13 +171,11 @@ ZennFeed CLI - フィード取得コマンド
   --type TYPE         フィードタイプ (all, topic, user) (デフォルト: all)
   --keyword KEYWORD   トピックまたはユーザー名 (typeがtopicまたはuserの場合は必須)
   --count COUNT       取得する記事数 (デフォルト: 20)
-  --first, -f         最初の記事の内容も同時に取得
 
 例:
   zennfeed feed
   zennfeed feed --type topic --keyword typescript
   zennfeed feed --type user --keyword taktamur
-  zennfeed feed --first
   `);
 }
 
