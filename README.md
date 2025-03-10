@@ -4,6 +4,8 @@
 
 # ZennFeed CLI
 
+[![Deno Tests](https://github.com/taktamur/zennfeed-cli/actions/workflows/test.yml/badge.svg)](https://github.com/taktamur/zennfeed-cli/actions/workflows/test.yml)
+
 Zenn.dev の最新記事を RSS フィードから取得する Deno ベースの CLI ツール
 
 ## 機能

@@ -26,9 +26,13 @@ async function main() {
       await handleArticleCommand(restArgs);
       break;
     default:
-      console.error(JSON.stringify({ 
-        error: `不明なコマンド: ${subcommand}` 
-      }, null, 2));
+      console.error(JSON.stringify(
+        {
+          error: `不明なコマンド: ${subcommand}`,
+        },
+        null,
+        2,
+      ));
       showHelp();
       Deno.exit(1);
   }
@@ -55,7 +59,7 @@ async function handleFeedCommand(args: string[]) {
   const count = parseInt(parsedArgs.count);
   const keyword = parsedArgs.keyword as string;
   const type = parsedArgs.type as "all" | "topic" | "user";
-  
+
   // フィルターの構築
   let filter: FeedFilter;
   if (type === "all") {
@@ -65,29 +69,33 @@ async function handleFeedCommand(args: string[]) {
   } else if (type === "user" && keyword) {
     filter = { type: "user", keyword };
   } else if ((type === "topic" || type === "user") && !keyword) {
-    console.error(JSON.stringify({ 
-      error: "keywordパラメータが必要です" 
-    }, null, 2));
+    console.error(JSON.stringify(
+      {
+        error: "keywordパラメータが必要です",
+      },
+      null,
+      2,
+    ));
     Deno.exit(1);
     // TypeScriptの型チェックのため
     filter = { type: "all" };
   } else {
     filter = { type: "all" };
   }
-  
+
   const result = await fetchLatestArticles({
     count,
     filter,
   });
-  
+
   if (!result.ok) {
     console.error(JSON.stringify({ error: result.error }, null, 2));
     Deno.exit(1);
   }
-  
+
   // 記事一覧のみを表示
   const output = {
-    articles: result.value
+    articles: result.value,
   };
   console.log(JSON.stringify(output, null, 2));
 }
@@ -112,21 +120,25 @@ async function handleArticleCommand(args: string[]) {
 
   const url = parsedArgs.url;
   if (!url) {
-    console.error(JSON.stringify({ 
-      error: "URLパラメータが必要です" 
-    }, null, 2));
+    console.error(JSON.stringify(
+      {
+        error: "URLパラメータが必要です",
+      },
+      null,
+      2,
+    ));
     showArticleHelp();
     Deno.exit(1);
     return;
   }
 
   const result = await extractContent(url);
-  
+
   if (!result.ok) {
     console.error(JSON.stringify({ error: result.error }, null, 2));
     Deno.exit(1);
   }
-  
+
   // 構造化されたデータをそのまま表示
   console.log(JSON.stringify(result.value, null, 2));
 }
