@@ -1,5 +1,7 @@
 # まだ実装中でバグっています。
 
+# Claude Code を利用して生成させています。
+
 # ZennFeed CLI
 
 Zenn.dev の最新記事を RSS フィードから取得する Deno ベースの CLI ツール
