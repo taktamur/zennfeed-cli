@@ -1,8 +1,8 @@
 #!/usr/bin/env -S deno run --allow-net
 
 import { parse } from "https://deno.land/std@0.216.0/flags/mod.ts";
-import { fetchLatestArticles } from "./api.ts";
-import { FeedType } from "./types.ts";
+import { fetchLatestArticles } from "./src/api.ts";
+import { FeedType } from "./src/types.ts";
 
 /**
  * メイン関数
