@@ -16,6 +16,18 @@ export type Article = {
   author: string;
 };
 
+/**
+ * 記事の詳細コンテンツ
+ */
+export type ArticleContent = {
+  title: string;
+  content: string;
+  author: string;
+  published: string;
+  url: string;
+  tags: string[];
+};
+
 export type Result<T, E> = {
   ok: true;
   value: T;
