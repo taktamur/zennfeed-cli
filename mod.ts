@@ -87,8 +87,7 @@ async function handleFeedCommand(args: string[]) {
   
   // 記事一覧のみを表示
   const output = {
-    articles: result.value,
-    message: "記事の詳細を取得するには: zennfeed article --url <記事のURL>"
+    articles: result.value
   };
   console.log(JSON.stringify(output, null, 2));
 }
