@@ -160,7 +160,7 @@ function extractArticleContent(html: string, url: string): ArticleContent {
 /**
  * HTML文字実体参照をデコードする
  */
-function decodeHTMLEntities(text: string): string {
+export function decodeHTMLEntities(text: string): string {
   return text
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
