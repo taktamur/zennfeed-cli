@@ -93,7 +93,7 @@ async function handleFeedCommand(args: string[]) {
     
     const output = {
       articles: result.value,
-      message: "記事の詳細を取得するには: deno run --allow-net mod.ts article --url <記事のURL>",
+      message: "記事の詳細を取得するには: zennfeed article --url <記事のURL>",
       firstArticle: articleResult.ok ? articleResult.value : { error: "記事本文の取得に失敗しました" }
     };
     console.log(JSON.stringify(output, null, 2));
@@ -101,7 +101,7 @@ async function handleFeedCommand(args: string[]) {
     // 通常の記事一覧のみを表示
     const output = {
       articles: result.value,
-      message: "記事の詳細を取得するには: deno run --allow-net mod.ts article --url <記事のURL>"
+      message: "記事の詳細を取得するには: zennfeed article --url <記事のURL>"
     };
     console.log(JSON.stringify(output, null, 2));
   }
@@ -154,19 +154,19 @@ function showHelp() {
 ZennFeed CLI - Zenn.devの記事を取得・表示するツール
 
 使用方法:
-  deno run --allow-net mod.ts <command> [options]
+  zennfeed <command> [options]
 
 サブコマンド:
   feed      Zennの記事フィードを取得
   article   指定したURLの記事本文を抽出
 
 詳細なオプションを確認するには:
-  deno run --allow-net mod.ts feed --help
-  deno run --allow-net mod.ts article --help
+  zennfeed feed --help
+  zennfeed article --help
 
 例:
-  deno run --allow-net mod.ts feed
-  deno run --allow-net mod.ts article --url https://zenn.dev/taktamur/articles/b5a26613e7261e
+  zennfeed feed
+  zennfeed article --url https://zenn.dev/taktamur/articles/b5a26613e7261e
   `);
 }
 
@@ -178,7 +178,7 @@ function showFeedHelp() {
 ZennFeed CLI - フィード取得コマンド
 
 使用方法:
-  deno run --allow-net mod.ts feed [options]
+  zennfeed feed [options]
 
 オプション:
   --help, -h          このヘルプメッセージを表示
@@ -188,10 +188,10 @@ ZennFeed CLI - フィード取得コマンド
   --first, -f         最初の記事の内容も同時に取得
 
 例:
-  deno run --allow-net mod.ts feed
-  deno run --allow-net mod.ts feed --type topic --keyword typescript
-  deno run --allow-net mod.ts feed --type user --keyword taktamur
-  deno run --allow-net mod.ts feed --first
+  zennfeed feed
+  zennfeed feed --type topic --keyword typescript
+  zennfeed feed --type user --keyword taktamur
+  zennfeed feed --first
   `);
 }
 
@@ -203,14 +203,14 @@ function showArticleHelp() {
 ZennFeed CLI - 記事本文取得コマンド
 
 使用方法:
-  deno run --allow-net mod.ts article --url <URL>
+  zennfeed article --url <URL>
 
 オプション:
   --help, -h          このヘルプメッセージを表示
   --url, -u URL       記事のURL（必須）
 
 例:
-  deno run --allow-net mod.ts article --url https://zenn.dev/taktamur/articles/b5a26613e7261e
+  zennfeed article --url https://zenn.dev/taktamur/articles/b5a26613e7261e
   `);
 }
 
