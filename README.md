@@ -28,6 +28,12 @@ deno run --allow-net mod.ts
 
 # 取得する記事数を指定
 deno run --allow-net mod.ts --count=10
+
+# トピックを指定して取得（例: LLM関連の記事）
+deno run --allow-net mod.ts --type=topic --keyword=llm
+
+# 特定ユーザーの記事を取得
+deno run --allow-net mod.ts --type=user --keyword=username
 ```
 
 ## 開発

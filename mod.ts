@@ -3,6 +3,16 @@
 import { parse } from "https://deno.land/std@0.216.0/flags/mod.ts";
 import { parseFeed } from "https://deno.land/x/rss@1.0.0/mod.ts";
 
+// FeedEntryの型定義
+interface ExtendedFeedEntry {
+  title?: { value: string };
+  links?: Array<{ href: string }>;
+  published?: string | Date;
+  dc?: {
+    creator?: string;
+  };
+}
+
 type Article = {
   title: string;
   link: string;
@@ -30,14 +40,31 @@ function formatDate(dateStr: string): string {
       minute: "2-digit",
       timeZone: "Asia/Tokyo",
     }).format(date);
-  } catch (error) {
+  } catch (_error) {
     return dateStr;
   }
 }
 
-async function fetchLatestArticles(count = 20): Promise<Result<Article[], string>> {
+type FeedType = "all" | "topic" | "user";
+
+async function fetchLatestArticles(
+  options: { count?: number; keyword?: string; type?: FeedType } = {}
+): Promise<Result<Article[], string>> {
   try {
-    const response = await fetch("https://zenn.dev/feed");
+    const { count = 20, keyword = "", type = "all" } = options;
+    let url = "https://zenn.dev/feed";
+
+    if (keyword) {
+      if (type === "topic") {
+        url = `https://zenn.dev/topics/${keyword}/feed`;
+      } else if (type === "user") {
+        url = `https://zenn.dev/${keyword}/feed`;
+      } else {
+        return { ok: false, error: "キーワードを指定する場合はタイプ(topic/user)も指定してください" };
+      }
+    }
+    
+    const response = await fetch(url);
     
     if (!response.ok) {
       return { 
@@ -56,7 +83,7 @@ async function fetchLatestArticles(count = 20): Promise<Result<Article[], string
     const articles: Article[] = [];
     
     for (let i = 0; i < Math.min(feed.entries.length, count); i++) {
-      const entry = feed.entries[i];
+      const entry = feed.entries[i] as ExtendedFeedEntry;
       
       // URLから著者名を抽出
       let author = "";
@@ -69,36 +96,44 @@ async function fetchLatestArticles(count = 20): Promise<Result<Article[], string
       }
       
       // Dublin Coreの情報も確認
-      if (!author && entry.dc && entry.dc.creator) {
+      if (!author && entry.dc?.creator) {
         author = entry.dc.creator;
       }
       
       const pubDate = entry.published || "";
+      const pubDateStr = typeof pubDate === "string" ? pubDate : pubDate.toISOString();
       
       articles.push({
         title: entry.title?.value || "",
         link: link,
-        pubDate: pubDate,
-        pubDateFormatted: formatDate(pubDate),
+        pubDate: pubDateStr,
+        pubDateFormatted: formatDate(pubDateStr),
         author: author,
       });
     }
     
     return { ok: true, value: articles };
-  } catch (error) {
-    return { ok: false, error: `エラーが発生しました: ${error.message}` };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { ok: false, error: `エラーが発生しました: ${errorMessage}` };
   }
 }
 
 async function main() {
   const args = parse(Deno.args, {
-    string: ["count"],
+    string: ["count", "keyword", "type"],
     default: { count: "20" },
   });
 
   const count = parseInt(args.count);
+  const keyword = args.keyword as string;
+  const type = args.type as FeedType;
   
-  const result = await fetchLatestArticles(count);
+  const result = await fetchLatestArticles({
+    count,
+    keyword,
+    type,
+  });
   
   if (!result.ok) {
     console.error(JSON.stringify({ error: result.error }, null, 2));
