@@ -1,3 +1,5 @@
+# まだ実装中でバグっています。
+
 # ZennFeed CLI
 
 Zenn.dev の最新記事を RSS フィードから取得する Deno ベースの CLI ツール
