@@ -11,6 +11,12 @@
 - バンドル: `deno bundle mod.ts dist.js`
 - コンパイル: `deno compile --allow-net mod.ts`
 
+## GitHub操作
+- プッシュ: `gh repo push` または `git push origin main`
+- PR作成: `gh pr create --title "PRタイトル" --body "PR詳細"`
+- PR確認: `gh pr view`
+- コミット履歴: `gh repo view --commits`
+
 ## コードスタイル
 - TypeScriptネイティブ構文の活用
 - Top-levelのawaitを使用
