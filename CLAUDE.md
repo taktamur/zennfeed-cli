@@ -15,8 +15,11 @@
 ## GitHub操作
 
 - プッシュ: `gh repo push` または `git push origin main`
-- PR作成: `gh pr create --title "PRタイトル" --body "PR詳細\n\n🤖 Generated with [Claude Code](https://claude.ai/code)"` (テスト項目は不要)
-- Issue書き込み: コメントの最後に `🤖 Generated with [Claude Code](https://claude.ai/code)` を追加
+- PR作成:
+  `gh pr create --title "PRタイトル" --body "PR詳細\n\n🤖 Generated with [Claude Code](https://claude.ai/code)"`
+  (テスト項目は不要)
+- Issue書き込み: コメントの最後に
+  `🤖 Generated with [Claude Code](https://claude.ai/code)` を追加
 - Issue確認時: 不明瞭な箇所があれば質問をコメントで返す
 - PR確認: `gh pr view`
 - コミット履歴: `gh repo view --commits`
