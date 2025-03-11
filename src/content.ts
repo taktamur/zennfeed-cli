@@ -334,7 +334,7 @@ function convertElementToMarkdown(element: Element): MarkdownContent {
             // リンクを [text](url) の形式に置き換え
             const processedHtml = html.replace(
               /<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi,
-              (match, url, text) => {
+              (_match, url, text) => {
                 // 空のテキストの場合、URLの末尾を使用
                 const linkText = text.trim()
                   ? text.trim()
@@ -344,7 +344,7 @@ function convertElementToMarkdown(element: Element): MarkdownContent {
             );
 
             // HTMLタグを削除してテキストだけを取得
-            let plainText = processedHtml
+            const plainText = processedHtml
               .replace(/<[^>]*>/g, "") // HTMLタグを削除
               .replace(/\s+/g, " ") // 連続する空白を1つに
               .trim();
@@ -353,7 +353,7 @@ function convertElementToMarkdown(element: Element): MarkdownContent {
           } else {
             markdown += `\n\n${processInlineContent(el)}\n\n`;
           }
-        } catch (error) {
+        } catch (_error) {
           // エラーが発生した場合は通常の処理にフォールバック
           markdown += `\n\n${processInlineContent(el)}\n\n`;
         }
