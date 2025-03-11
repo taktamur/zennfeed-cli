@@ -1,8 +1,6 @@
-import { ArticleContent, Result } from "./types.ts";
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom@v0.1.49/deno-dom-wasm.ts";
+import { ArticleContent, MarkdownContent, Result } from "./types.ts";
+import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.49/deno-dom-wasm.ts";
+import { decodeHTMLEntities, extractMarkdownFromElement } from "./markdown.ts";
 
 /**
  * URLから記事情報を抽出する
@@ -43,7 +41,7 @@ export async function extractContent(
 function extractArticleContent(html: string, url: string): ArticleContent {
   const result: ArticleContent = {
     title: "",
-    content: "",
+    content: MarkdownContent.empty(),
     author: "",
     published: "",
     url,
@@ -215,24 +213,25 @@ function extractArticleContent(html: string, url: string): ArticleContent {
     mainElement = document.querySelector("article");
   }
 
-  // 本文テキストの抽出と整形
-  let mainText = "";
+  // 本文をMarkdown形式で抽出
+  let mainContent = MarkdownContent.empty();
   if (mainElement) {
-    mainText = extractTextFromElement(mainElement);
+    mainContent = extractMarkdownFromElement(mainElement);
   }
 
   // 不要なテキストを削除
-  mainText = mainText
+  const filteredContent = mainContent
     .replace(/バッジを贈って著者を応援しよう.*/gs, "")
     .replace(/Discussion.*/gs, "")
     .replace(/目次.*/gs, "");
 
-  result.content = mainText.trim();
+  result.content = filteredContent.trim();
 
   // タイトルがまだ取得できていない場合、文章の最初の部分から推測
-  if (!result.title && mainText.length > 10) {
-    // 最初の文またはセクションをタイトルとして使用
-    const firstSentence = mainText.split(/\.\s+/)[0].trim();
+  if (!result.title && mainContent.length > 10) {
+    // 最初の文またはセクションをタイトルとして使用（Markdownの記号を削除）
+    const plainText = mainContent.toString().replace(/[#*`_~\[\]\(\)]/g, "");
+    const firstSentence = plainText.split(/\.\s+/)[0].trim();
     if (firstSentence.length > 10 && firstSentence.length < 100) {
       result.title = firstSentence;
     }
@@ -241,40 +240,11 @@ function extractArticleContent(html: string, url: string): ArticleContent {
   return result;
 }
 
-/**
- * DOMエレメントからテキストを抽出する補助関数
- */
-function extractTextFromElement(element: Element): string {
-  // 不要な要素を除外
-  const scriptElements = element.querySelectorAll(
-    "script, style, svg, pre, code",
-  );
-  for (const el of Array.from(scriptElements)) {
-    (el as Element).remove();
-  }
+// extractTextFromElementは使用しなくなったため削除
 
-  // テキストを抽出し整形
-  const text = element.textContent
-    .replace(/\s{2,}/g, " ") // 連続する空白文字を1つのスペースに置換
-    .trim();
-
-  return decodeHTMLEntities(text);
-}
-
-/**
- * HTML文字実体参照をデコードする
- */
-export function decodeHTMLEntities(text: string): string {
-  return text
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(
-      /&#x([0-9a-f]+);/gi,
-      (_, hex) => String.fromCodePoint(parseInt(hex, 16)),
-    )
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)));
-}
+// extractMarkdownFromElement関数はmarkdown.tsに移動済み
+// 以下の関数も移動済み：
+// - convertElementToMarkdown
+// - processInlineContent
+// - processTable
+// - decodeHTMLEntities

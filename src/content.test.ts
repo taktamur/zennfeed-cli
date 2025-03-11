@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std/assert/mod.ts";
-import { decodeHTMLEntities } from "./content.ts";
+import { decodeHTMLEntities } from "./markdown.ts";
 
 Deno.test("decodeHTMLEntities decodes HTML entities correctly", () => {
   const input =

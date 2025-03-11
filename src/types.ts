@@ -25,11 +25,65 @@ export type Feed = {
 };
 
 /**
+ * Markdown形式のコンテンツを表すクラス
+ * 単なるstringと区別するための型安全なクラス
+ */
+export class MarkdownContent {
+  private readonly value: string;
+
+  private constructor(value: string) {
+    this.value = value;
+  }
+
+  /**
+   * 文字列からMarkdownContentを作成する
+   */
+  static create(content: string): MarkdownContent {
+    return new MarkdownContent(content);
+  }
+
+  /**
+   * 空のMarkdownContentを作成する
+   */
+  static empty(): MarkdownContent {
+    return new MarkdownContent("");
+  }
+
+  /**
+   * 文字列に変換する
+   */
+  toString(): string {
+    return this.value;
+  }
+
+  /**
+   * 内容を置換する
+   */
+  replace(pattern: RegExp, replacement: string): MarkdownContent {
+    return new MarkdownContent(this.value.replace(pattern, replacement));
+  }
+
+  /**
+   * 内容をトリムする
+   */
+  trim(): MarkdownContent {
+    return new MarkdownContent(this.value.trim());
+  }
+
+  /**
+   * 内容の長さを取得する
+   */
+  get length(): number {
+    return this.value.length;
+  }
+}
+
+/**
  * 記事の詳細コンテンツ
  */
 export type ArticleContent = {
   title: string;
-  content: string;
+  content: MarkdownContent; // Markdown形式で保持
   author: string;
   published: string;
   url: string;

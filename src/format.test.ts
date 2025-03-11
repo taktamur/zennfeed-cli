@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std/assert/mod.ts";
 import { formatArticleOutput, formatFeedOutput } from "./format.ts";
-import { Article, ArticleContent } from "./types.ts";
+import { Article, ArticleContent, MarkdownContent } from "./types.ts";
 
 Deno.test("formatFeedOutput formats feed in text format", () => {
   const articles: Article[] = [
@@ -79,9 +79,12 @@ Deno.test("formatFeedOutput formats feed in markdown format", () => {
 });
 
 Deno.test("formatArticleOutput formats article in text format", () => {
+  // Markdownコンテンツを作成
+  const markdownContent = MarkdownContent.create("Article content");
+
   const article: ArticleContent = {
     title: "Test Article",
-    content: "Article content",
+    content: markdownContent,
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
@@ -100,9 +103,12 @@ Deno.test("formatArticleOutput formats article in text format", () => {
 });
 
 Deno.test("formatArticleOutput formats article in json format", () => {
+  // Markdownコンテンツを作成
+  const markdownContent = MarkdownContent.create("Article content");
+
   const article: ArticleContent = {
     title: "Test Article",
-    content: "Article content",
+    content: markdownContent,
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
@@ -118,9 +124,12 @@ Deno.test("formatArticleOutput formats article in json format", () => {
 });
 
 Deno.test("formatArticleOutput formats article in markdown format", () => {
+  // Markdownコンテンツを作成
+  const markdownContent = MarkdownContent.create("Article content");
+
   const article: ArticleContent = {
     title: "Test Article",
-    content: "Article content",
+    content: markdownContent,
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
