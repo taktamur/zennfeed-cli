@@ -79,9 +79,6 @@ zennfeed feed --type=topic --keyword=typescript
 # 特定ユーザーの記事を取得
 zennfeed feed --type=user --keyword=taktamur
 
-# 最初の記事の内容も同時に取得
-zennfeed feed --first
-
 # 注意: topic/userタイプの場合はkeywordが必須
 # 以下のコマンドはエラーになります
 # zennfeed feed --type=topic
@@ -126,34 +123,7 @@ zennfeed article --help
       "author": "username"
     },
     ...
-  ],
-  "message": "記事の詳細を取得するには: zennfeed article --url <記事のURL>"
-}
-```
-
-### フィード出力（--first オプション付き）
-
-```json
-{
-  "articles": [
-    {
-      "title": "サンプル記事タイトル",
-      "link": "https://zenn.dev/username/articles/article-id",
-      "pubDate": "2023-04-01T12:00:00.000Z",
-      "pubDateFormatted": "2023/04/01 21:00",
-      "author": "username"
-    },
-    ...
-  ],
-  "message": "記事の詳細を取得するには: zennfeed article --url <記事のURL>",
-  "firstArticle": {
-    "title": "サンプル記事タイトル",
-    "content": "記事の本文テキスト...",
-    "author": "username",
-    "published": "2023-04-01",
-    "url": "https://zenn.dev/username/articles/article-id",
-    "tags": ["tag1", "tag2", "tag3"]
-  }
+  ]
 }
 ```
 
