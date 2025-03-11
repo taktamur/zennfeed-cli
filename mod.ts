@@ -4,7 +4,7 @@ import { parse } from "https://deno.land/std@0.216.0/flags/mod.ts";
 import { fetchLatestArticles } from "./src/api.ts";
 import { extractContent } from "./src/content.ts";
 import { FeedFilter, OutputFormat } from "./src/types.ts";
-import { formatFeedOutput, formatArticleOutput } from "./src/utils.ts";
+import { formatArticleOutput, formatFeedOutput } from "./src/utils.ts";
 
 /**
  * メイン関数 - サブコマンドをハンドリング

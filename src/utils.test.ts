@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std/assert/mod.ts";
-import { formatDate, formatFeedOutput, formatArticleOutput } from "./utils.ts";
+import { formatArticleOutput, formatDate, formatFeedOutput } from "./utils.ts";
 import { Article, ArticleContent } from "./types.ts";
 
 Deno.test("formatDate formats date correctly", () => {
@@ -14,13 +14,14 @@ Deno.test("formatFeedOutput formats feed in text format", () => {
       link: "https://zenn.dev/test/article",
       pubDate: "2023-07-09T10:30:00Z",
       pubDateFormatted: "2023/07/09 19:30",
-      author: "Test Author"
-    }
+      author: "Test Author",
+    },
   ];
-  
+
   const formatted = formatFeedOutput(articles, "text");
-  const expected = "Test Article\n  https://zenn.dev/test/article\n  Test Author - 2023/07/09 19:30";
-  
+  const expected =
+    "Test Article\n  https://zenn.dev/test/article\n  Test Author - 2023/07/09 19:30";
+
   assertEquals(formatted, expected);
 });
 
@@ -31,13 +32,13 @@ Deno.test("formatFeedOutput formats feed in json format", () => {
       link: "https://zenn.dev/test/article",
       pubDate: "2023-07-09T10:30:00Z",
       pubDateFormatted: "2023/07/09 19:30",
-      author: "Test Author"
-    }
+      author: "Test Author",
+    },
   ];
-  
+
   const formatted = formatFeedOutput(articles, "json");
   const parsed = JSON.parse(formatted);
-  
+
   assertEquals(parsed.articles.length, 1);
   assertEquals(parsed.articles[0].title, "Test Article");
 });
@@ -49,13 +50,14 @@ Deno.test("formatFeedOutput formats feed in markdown format", () => {
       link: "https://zenn.dev/test/article",
       pubDate: "2023-07-09T10:30:00Z",
       pubDateFormatted: "2023/07/09 19:30",
-      author: "Test Author"
-    }
+      author: "Test Author",
+    },
   ];
-  
+
   const formatted = formatFeedOutput(articles, "markdown");
-  const expected = "- [Test Article](https://zenn.dev/test/article) by Test Author - 2023/07/09 19:30";
-  
+  const expected =
+    "- [Test Article](https://zenn.dev/test/article) by Test Author - 2023/07/09 19:30";
+
   assertEquals(formatted, expected);
 });
 
@@ -66,9 +68,9 @@ Deno.test("formatArticleOutput formats article in text format", () => {
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
-    tags: ["test", "example"]
+    tags: ["test", "example"],
   };
-  
+
   const formatted = formatArticleOutput(article, "text");
   const expected = "タイトル: Test Article\n" +
     "著者: Test Author\n" +
@@ -76,7 +78,7 @@ Deno.test("formatArticleOutput formats article in text format", () => {
     "URL: https://zenn.dev/test/article\n" +
     "タグ: test, example\n\n" +
     "Article content";
-  
+
   assertEquals(formatted, expected);
 });
 
@@ -87,12 +89,12 @@ Deno.test("formatArticleOutput formats article in json format", () => {
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
-    tags: ["test", "example"]
+    tags: ["test", "example"],
   };
-  
+
   const formatted = formatArticleOutput(article, "json");
   const parsed = JSON.parse(formatted);
-  
+
   assertEquals(parsed.title, "Test Article");
   assertEquals(parsed.content, "Article content");
   assertEquals(parsed.tags.length, 2);
@@ -105,13 +107,14 @@ Deno.test("formatArticleOutput formats article in markdown format", () => {
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
-    tags: ["test", "example"]
+    tags: ["test", "example"],
   };
-  
+
   const formatted = formatArticleOutput(article, "markdown");
-  const expectedStart = "# Test Article\n\n*By Test Author - 2023/07/09 19:30*\n\nArticle content";
+  const expectedStart =
+    "# Test Article\n\n*By Test Author - 2023/07/09 19:30*\n\nArticle content";
   const expectedEnd = "\n\nTags: `test`, `example`";
-  
+
   assertEquals(formatted.startsWith(expectedStart), true);
   assertEquals(formatted.endsWith(expectedEnd), true);
 });
