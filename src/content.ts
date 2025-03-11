@@ -43,7 +43,7 @@ export async function extractContent(
 function extractArticleContent(html: string, url: string): ArticleContent {
   const result: ArticleContent = {
     title: "",
-    content: "",
+    content: MarkdownContent.empty(),
     author: "",
     published: "",
     url,
@@ -216,23 +216,23 @@ function extractArticleContent(html: string, url: string): ArticleContent {
   }
 
   // 本文をMarkdown形式で抽出
-  let mainContent = "";
+  let mainContent = MarkdownContent.empty();
   if (mainElement) {
     mainContent = extractMarkdownFromElement(mainElement);
   }
 
   // 不要なテキストを削除
-  mainContent = mainContent
+  const filteredContent = mainContent
     .replace(/バッジを贈って著者を応援しよう.*/gs, "")
     .replace(/Discussion.*/gs, "")
     .replace(/目次.*/gs, "");
 
-  result.content = mainContent.trim();
+  result.content = filteredContent.trim();
 
   // タイトルがまだ取得できていない場合、文章の最初の部分から推測
   if (!result.title && mainContent.length > 10) {
-    // 最初の文またはセクションをタイトルとして使用
-    const plainText = mainContent.replace(/[#*`_~\[\]\(\)]/g, ""); // Markdownの記号を削除
+    // 最初の文またはセクションをタイトルとして使用（Markdownの記号を削除）
+    const plainText = mainContent.toString().replace(/[#*`_~\[\]\(\)]/g, "");
     const firstSentence = plainText.split(/\.\s+/)[0].trim();
     if (firstSentence.length > 10 && firstSentence.length < 100) {
       result.title = firstSentence;
@@ -327,6 +327,7 @@ function convertElementToMarkdown(element: Element): MarkdownContent {
       }
       case "blockquote": {
         const quoteContent = convertElementToMarkdown(el)
+          .toString()
           .trim()
           .split("\n")
           .map((line) => `> ${line}`)
@@ -376,17 +377,19 @@ function convertElementToMarkdown(element: Element): MarkdownContent {
       case "div":
       case "span":
       case "section":
-      case "article":
+      case "article": {
         // 一般的なコンテナ要素は子要素をそのまま処理
-        markdown += convertElementToMarkdown(el);
+        const nestedContent = convertElementToMarkdown(el);
+        markdown += nestedContent.toString();
         break;
+      }
       default:
         // その他の要素は子要素をそのまま処理
         markdown += processInlineContent(el);
     }
   }
 
-  return markdown.trim();
+  return MarkdownContent.create(markdown.trim());
 }
 
 /**

@@ -79,9 +79,12 @@ Deno.test("formatFeedOutput formats feed in markdown format", () => {
 });
 
 Deno.test("formatArticleOutput formats article in text format", () => {
+  // Markdownコンテンツを作成
+  const markdownContent = MarkdownContent.create("Article content");
+
   const article: ArticleContent = {
     title: "Test Article",
-    content: "Article content" as MarkdownContent, // 内部的にはMarkdown形式
+    content: markdownContent,
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
@@ -100,9 +103,12 @@ Deno.test("formatArticleOutput formats article in text format", () => {
 });
 
 Deno.test("formatArticleOutput formats article in json format", () => {
+  // Markdownコンテンツを作成
+  const markdownContent = MarkdownContent.create("Article content");
+
   const article: ArticleContent = {
     title: "Test Article",
-    content: "Article content" as MarkdownContent, // 内部的にはMarkdown形式
+    content: markdownContent,
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",
@@ -118,9 +124,12 @@ Deno.test("formatArticleOutput formats article in json format", () => {
 });
 
 Deno.test("formatArticleOutput formats article in markdown format", () => {
+  // Markdownコンテンツを作成
+  const markdownContent = MarkdownContent.create("Article content");
+
   const article: ArticleContent = {
     title: "Test Article",
-    content: "Article content" as MarkdownContent, // 内部的にはMarkdown形式
+    content: markdownContent,
     author: "Test Author",
     published: "2023/07/09 19:30",
     url: "https://zenn.dev/test/article",

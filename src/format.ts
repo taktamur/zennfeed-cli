@@ -43,7 +43,7 @@ export function formatFeedOutput(
  * Markdownコンテンツをプレーンテキストに変換する
  */
 function markdownToText(markdown: MarkdownContent): string {
-  return markdown
+  return markdown.toString()
     // 見出し
     .replace(/^#+\s+/gm, "")
     // 太字
