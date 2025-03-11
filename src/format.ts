@@ -9,19 +9,24 @@ import { Article, ArticleContent, OutputFormat } from "./types.ts";
 export function formatFeedOutput(
   articles: Article[],
   format: OutputFormat = "text",
+  feedUrl?: string,
 ): string {
+  const feedHeader = feedUrl ? `Feed URL: ${feedUrl}\n\n` : "";
+
   switch (format) {
     case "json":
-      return JSON.stringify({ articles }, null, 2);
-    case "markdown":
-      return articles
+      return JSON.stringify({ feedUrl, articles }, null, 2);
+    case "markdown": {
+      const mdHeader = feedUrl ? `## Feed: [${feedUrl}](${feedUrl})\n\n` : "";
+      return mdHeader + articles
         .map((article) =>
           `- [${article.title}](${article.link}) by ${article.author} - ${article.pubDateFormatted}`
         )
         .join("\n");
+    }
     case "text":
     default:
-      return articles
+      return feedHeader + articles
         .map((article) =>
           `${article.title}\n  ${article.link}\n  ${article.author} - ${article.pubDateFormatted}`
         )

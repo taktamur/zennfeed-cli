@@ -17,6 +17,14 @@ export type Article = {
 };
 
 /**
+ * フィードの記事一覧と取得元URL
+ */
+export type Feed = {
+  articles: Article[];
+  feedUrl: string;
+};
+
+/**
  * 記事の詳細コンテンツ
  */
 export type ArticleContent = {

@@ -97,7 +97,9 @@ async function handleFeedCommand(args: string[]) {
   }
 
   // 指定されたフォーマットで出力
-  console.log(formatFeedOutput(result.value, format));
+  console.log(
+    formatFeedOutput(result.value.articles, format, result.value.feedUrl),
+  );
 }
 
 /**

@@ -18,6 +18,13 @@ Deno.test("formatFeedOutput formats feed in text format", () => {
     "Test Article\n  https://zenn.dev/test/article\n  Test Author - 2023/07/09 19:30";
 
   assertEquals(formatted, expected);
+
+  // フィードURLがある場合
+  const feedUrl = "https://zenn.dev/feed";
+  const formattedWithUrl = formatFeedOutput(articles, "text", feedUrl);
+  const expectedWithUrl = `Feed URL: ${feedUrl}\n\n${expected}`;
+
+  assertEquals(formattedWithUrl, expectedWithUrl);
 });
 
 Deno.test("formatFeedOutput formats feed in json format", () => {
@@ -36,6 +43,14 @@ Deno.test("formatFeedOutput formats feed in json format", () => {
 
   assertEquals(parsed.articles.length, 1);
   assertEquals(parsed.articles[0].title, "Test Article");
+  assertEquals(parsed.feedUrl, undefined);
+
+  // フィードURLがある場合
+  const feedUrl = "https://zenn.dev/feed";
+  const formattedWithUrl = formatFeedOutput(articles, "json", feedUrl);
+  const parsedWithUrl = JSON.parse(formattedWithUrl);
+
+  assertEquals(parsedWithUrl.feedUrl, feedUrl);
 });
 
 Deno.test("formatFeedOutput formats feed in markdown format", () => {
@@ -54,6 +69,13 @@ Deno.test("formatFeedOutput formats feed in markdown format", () => {
     "- [Test Article](https://zenn.dev/test/article) by Test Author - 2023/07/09 19:30";
 
   assertEquals(formatted, expected);
+
+  // フィードURLがある場合
+  const feedUrl = "https://zenn.dev/feed";
+  const formattedWithUrl = formatFeedOutput(articles, "markdown", feedUrl);
+  const expectedWithUrl = `## Feed: [${feedUrl}](${feedUrl})\n\n${expected}`;
+
+  assertEquals(formattedWithUrl, expectedWithUrl);
 });
 
 Deno.test("formatArticleOutput formats article in text format", () => {
