@@ -269,6 +269,30 @@ function extractMarkdownFromElement(element: Element): MarkdownContent {
 function convertElementToMarkdown(element: Element): MarkdownContent {
   let markdown = "";
 
+  // リンク要素が含まれるか検証するフラグ（特殊なZennの構造対応のため）
+  const hasAnchorWithNoText = Array.from(element.querySelectorAll("a")).some(
+    (a) => a.textContent.trim() === "" && a.getAttribute("href"),
+  );
+
+  // 空のリンクがある場合は、より特殊な処理が必要（リンクの前後テキストを考慮）
+  if (hasAnchorWithNoText && element.textContent.trim().length > 0) {
+    // 親要素のテキスト全体を取得し、そこからリンク部分を置換
+    let fullText = element.textContent.trim();
+    for (const anchor of Array.from(element.querySelectorAll("a"))) {
+      const href = anchor.getAttribute("href") || "";
+      if (href) {
+        const linkText = anchor.textContent.trim() || href.split("/").pop() ||
+          href;
+        fullText = fullText.replace(href, `[${linkText}](${href})`);
+      }
+    }
+    // 整形されたテキストを返す
+    if (fullText) {
+      return MarkdownContent.create(fullText);
+    }
+  }
+
+  // 通常の処理（空のリンクがない場合）
   // 子要素を再帰的に処理
   for (const child of Array.from(element.childNodes)) {
     if (child.nodeType === 3) { // テキストノード
@@ -300,9 +324,41 @@ function convertElementToMarkdown(element: Element): MarkdownContent {
       case "h6":
         markdown += `\n\n###### ${processInlineContent(el)}\n\n`;
         break;
-      case "p":
-        markdown += `\n\n${processInlineContent(el)}\n\n`;
+      case "p": {
+        // Zennのリンク処理に特化した部分
+        // 特に複雑なHTMLを持つページ（Zennの場合）の処理
+        try {
+          const html = el.outerHTML;
+          // リンクを特定の形式に置き換える
+          if (html.includes("<a ") && html.includes("href=")) {
+            // リンクを [text](url) の形式に置き換え
+            const processedHtml = html.replace(
+              /<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi,
+              (match, url, text) => {
+                // 空のテキストの場合、URLの末尾を使用
+                const linkText = text.trim()
+                  ? text.trim()
+                  : url.split("/").pop() || url;
+                return `[${linkText}](${url})`;
+              },
+            );
+
+            // HTMLタグを削除してテキストだけを取得
+            let plainText = processedHtml
+              .replace(/<[^>]*>/g, "") // HTMLタグを削除
+              .replace(/\s+/g, " ") // 連続する空白を1つに
+              .trim();
+
+            markdown += `\n\n${plainText}\n\n`;
+          } else {
+            markdown += `\n\n${processInlineContent(el)}\n\n`;
+          }
+        } catch (error) {
+          // エラーが発生した場合は通常の処理にフォールバック
+          markdown += `\n\n${processInlineContent(el)}\n\n`;
+        }
         break;
+      }
       case "br":
         markdown += "\n";
         break;
@@ -350,7 +406,16 @@ function convertElementToMarkdown(element: Element): MarkdownContent {
         break;
       case "a": {
         const href = el.getAttribute("href") || "";
-        markdown += `[${processInlineContent(el)}](${href})`;
+        // リンクの中身の文字列を取得（再帰的ではなく直接textContentを使用）
+        let linkText = el.textContent.trim();
+
+        // リンクテキストが空の場合はURLを表示テキストとして使用
+        if (!linkText) {
+          // URLからドメイン以下を表示テキストとして使用
+          linkText = href.split("/").pop() || href;
+        }
+
+        markdown += `[${linkText}](${href})`;
         break;
       }
       case "img": {
@@ -412,7 +477,16 @@ function processInlineContent(element: Element): string {
     switch (tagName) {
       case "a": {
         const href = el.getAttribute("href") || "";
-        content += `[${processInlineContent(el)}](${href})`;
+        // リンクの中身の文字列を取得（再帰的ではなく直接textContentを使用）
+        let linkText = el.textContent.trim();
+
+        // リンクテキストが空の場合はURLを表示テキストとして使用
+        if (!linkText) {
+          // URLからドメイン以下を表示テキストとして使用
+          linkText = href.split("/").pop() || href;
+        }
+
+        content += `[${linkText}](${href})`;
         break;
       }
       case "img": {
