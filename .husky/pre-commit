@@ -1,0 +1,11 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# コミット前に自動的にdeno fmtを実行
+files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.ts$' || true)
+if [ -n "$files" ]; then
+  echo "Running deno fmt..."
+  deno fmt $files
+  # ファイルをステージング領域に再度追加
+  echo $files | xargs git add
+fi

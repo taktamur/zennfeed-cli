@@ -1,5 +1,32 @@
 # 開発ガイド
 
+## 開発環境のセットアップ
+
+### Git フック
+
+コミット前に自動的に `deno fmt` を実行するように設定することをお勧めします：
+
+```bash
+# .git/hooks/pre-commitファイルを作成
+cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/sh
+
+# コミット前に自動的にdeno fmtを実行
+files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.ts$' || true)
+if [ -n "$files" ]; then
+  echo "Running deno fmt..."
+  deno fmt $files
+  # ファイルをステージング領域に再度追加
+  echo $files | xargs git add
+fi
+EOF
+
+# 実行権限を付与
+chmod +x .git/hooks/pre-commit
+```
+
+この設定により、コミット時に変更されたTypeScriptファイルに対して自動的にフォーマットが適用されます。
+
 ## 開発コマンド
 
 ```bash
@@ -33,4 +60,4 @@ deno compile --allow-net mod.ts
   - タイムゾーン処理の追加
 - HTML スクレイピング処理の堅牢性向上
 - 記事タグの抽出精度の向上
-- 出力形式の選択肢追加（JSON 以外）
+- ~~出力形式の選択肢追加（JSON 以外）~~ ✅ issue #14 で実装完了
