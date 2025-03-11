@@ -61,12 +61,13 @@ export function formatArticleOutput(
   switch (format) {
     case "json":
       return JSON.stringify(content, null, 2);
-    case "markdown":
+    case "markdown": {
       const tagsList = content.tags.length > 0
         ? `\n\nTags: ${content.tags.map((tag) => `\`${tag}\``).join(", ")}`
         : "";
       return `# ${content.title}\n\n` +
         `*By ${content.author} - ${content.published}*\n\n${content.content}${tagsList}`;
+    }
     case "text":
     default:
       return `タイトル: ${content.title}\n` +
