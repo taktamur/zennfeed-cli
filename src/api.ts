@@ -20,7 +20,7 @@ export function buildFeedUrl(filter: FeedFilter): string {
  */
 export async function fetchLatestArticles(
   options: { count?: number; filter?: FeedFilter } = {},
-): Promise<Result<Article[], string>> {
+): Promise<Result<{ articles: Article[]; feedUrl: string }, string>> {
   try {
     const { count = 20, filter = { type: "all" } } = options;
     const url = buildFeedUrl(filter);
@@ -76,7 +76,7 @@ export async function fetchLatestArticles(
       });
     }
 
-    return { ok: true, value: articles };
+    return { ok: true, value: { articles, feedUrl: url } };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return { ok: false, error: `エラーが発生しました: ${errorMessage}` };

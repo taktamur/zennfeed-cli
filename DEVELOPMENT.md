@@ -61,3 +61,4 @@ deno compile --allow-net mod.ts
 - HTML スクレイピング処理の堅牢性向上
 - 記事タグの抽出精度の向上
 - ~~出力形式の選択肢追加（JSON 以外）~~ ✅ issue #14 で実装完了
+- ~~feedコマンドでフィードURLを表示~~ ✅ issue #22 で実装完了
