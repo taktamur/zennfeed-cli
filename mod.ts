@@ -50,6 +50,9 @@ async function handleFeedCommand(args: string[]) {
     alias: {
       h: "help",
       f: "format",
+      k: "keyword",
+      t: "type",
+      c: "count",
     },
   });
 
@@ -58,8 +61,14 @@ async function handleFeedCommand(args: string[]) {
     return;
   }
 
+  // キーワードをフラグ付き引数または通常の引数から取得
+  let keyword = parsedArgs.keyword as string;
+  const nonFlagArgs = parsedArgs._;
+  if (!keyword && nonFlagArgs.length > 0) {
+    keyword = String(nonFlagArgs[0]);
+  }
+
   const count = parseInt(parsedArgs.count);
-  const keyword = parsedArgs.keyword as string;
   const type = parsedArgs.type as "all" | "topic" | "user";
   const format = parsedArgs.format as OutputFormat;
 
@@ -156,7 +165,7 @@ function showHelp() {
 ZennFeed CLI - Zenn.devの記事を取得・表示するツール
 
 使用方法:
-  zennfeed <command> [options]
+  zennfeed <command> [keyword] [options]
 
 サブコマンド:
   feed      Zennの記事フィードを取得
@@ -168,6 +177,7 @@ ZennFeed CLI - Zenn.devの記事を取得・表示するツール
 
 例:
   zennfeed feed
+  zennfeed feed typescript
   zennfeed article --url https://zenn.dev/taktamur/articles/b5a26613e7261e
   `);
 }
@@ -180,20 +190,21 @@ function showFeedHelp() {
 ZennFeed CLI - フィード取得コマンド
 
 使用方法:
-  zennfeed feed [options]
+  zennfeed feed [keyword] [options]
 
 オプション:
-  --help, -h          このヘルプメッセージを表示
-  --type TYPE         フィードタイプ (all, topic, user) (デフォルト: all)
-  --keyword KEYWORD   トピックまたはユーザー名 (typeがtopicまたはuserの場合は必須)
-  --count COUNT       取得する記事数 (デフォルト: 20)
-  --format, -f FORMAT 出力フォーマット (text, json, markdown) (デフォルト: text)
+  --help, -h               このヘルプメッセージを表示
+  --type, -t TYPE          フィードタイプ (all, topic, user) (デフォルト: all)
+  --keyword, -k KEYWORD    トピックまたはユーザー名 (typeがtopicまたはuserの場合は必須)
+  --count, -c COUNT        取得する記事数 (デフォルト: 20)
+  --format, -f FORMAT      出力フォーマット (text, json, markdown) (デフォルト: text)
 
 例:
-  zennfeed feed
-  zennfeed feed --type topic --keyword typescript
-  zennfeed feed --type user --keyword taktamur
-  zennfeed feed --format markdown
+  zennfeed feed                             # 全記事を取得
+  zennfeed feed typescript                  # キーワード "typescript" でフィルタリング (デフォルトではトピック)
+  zennfeed feed typescript --type topic     # トピック "typescript" の記事を取得
+  zennfeed feed taktamur --type user        # ユーザー "taktamur" の記事を取得
+  zennfeed feed --format markdown           # Markdown形式で出力
   `);
 }
 
