@@ -195,7 +195,6 @@ ZennFeed CLI - フィード取得コマンド
 オプション:
   --help, -h               このヘルプメッセージを表示
   --type, -t TYPE          フィードタイプ (all, topic, user) (デフォルト: all)
-  --keyword, -k KEYWORD    トピックまたはユーザー名 (typeがtopicまたはuserの場合は必須)
   --count, -c COUNT        取得する記事数 (デフォルト: 20)
   --format, -f FORMAT      出力フォーマット (text, json, markdown) (デフォルト: text)
 
