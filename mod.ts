@@ -44,13 +44,12 @@ async function main() {
  */
 async function handleFeedCommand(args: string[]) {
   const parsedArgs = parse(args, {
-    string: ["count", "keyword", "type", "format"],
+    string: ["count", "type", "format"],
     boolean: ["help"],
     default: { count: "20", type: "all", format: "text" },
     alias: {
       h: "help",
       f: "format",
-      k: "keyword",
       t: "type",
       c: "count",
     },
@@ -61,10 +60,10 @@ async function handleFeedCommand(args: string[]) {
     return;
   }
 
-  // キーワードをフラグ付き引数または通常の引数から取得
-  let keyword = parsedArgs.keyword as string;
+  // キーワードを通常の引数から取得
+  let keyword = "";
   const nonFlagArgs = parsedArgs._;
-  if (!keyword && nonFlagArgs.length > 0) {
+  if (nonFlagArgs.length > 0) {
     keyword = String(nonFlagArgs[0]);
   }
 
