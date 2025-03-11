@@ -3,7 +3,8 @@
 import { parse } from "https://deno.land/std@0.216.0/flags/mod.ts";
 import { fetchLatestArticles } from "./src/api.ts";
 import { extractContent } from "./src/content.ts";
-import { FeedFilter } from "./src/types.ts";
+import { FeedFilter, OutputFormat } from "./src/types.ts";
+import { formatArticleOutput, formatFeedOutput } from "./src/format.ts";
 
 /**
  * メイン関数 - サブコマンドをハンドリング
@@ -43,11 +44,12 @@ async function main() {
  */
 async function handleFeedCommand(args: string[]) {
   const parsedArgs = parse(args, {
-    string: ["count", "keyword", "type"],
+    string: ["count", "keyword", "type", "format"],
     boolean: ["help"],
-    default: { count: "20", type: "all" },
+    default: { count: "20", type: "all", format: "text" },
     alias: {
       h: "help",
+      f: "format",
     },
   });
 
@@ -59,6 +61,7 @@ async function handleFeedCommand(args: string[]) {
   const count = parseInt(parsedArgs.count);
   const keyword = parsedArgs.keyword as string;
   const type = parsedArgs.type as "all" | "topic" | "user";
+  const format = parsedArgs.format as OutputFormat;
 
   // フィルターの構築
   let filter: FeedFilter;
@@ -93,11 +96,8 @@ async function handleFeedCommand(args: string[]) {
     Deno.exit(1);
   }
 
-  // 記事一覧のみを表示
-  const output = {
-    articles: result.value,
-  };
-  console.log(JSON.stringify(output, null, 2));
+  // 指定されたフォーマットで出力
+  console.log(formatFeedOutput(result.value, format));
 }
 
 /**
@@ -105,11 +105,13 @@ async function handleFeedCommand(args: string[]) {
  */
 async function handleArticleCommand(args: string[]) {
   const parsedArgs = parse(args, {
-    string: ["url"],
+    string: ["url", "format"],
     boolean: ["help"],
+    default: { format: "text" },
     alias: {
       h: "help",
       u: "url",
+      f: "format",
     },
   });
 
@@ -119,6 +121,7 @@ async function handleArticleCommand(args: string[]) {
   }
 
   const url = parsedArgs.url;
+  const format = parsedArgs.format as OutputFormat;
   if (!url) {
     console.error(JSON.stringify(
       {
@@ -139,8 +142,8 @@ async function handleArticleCommand(args: string[]) {
     Deno.exit(1);
   }
 
-  // 構造化されたデータをそのまま表示
-  console.log(JSON.stringify(result.value, null, 2));
+  // 指定されたフォーマットで出力
+  console.log(formatArticleOutput(result.value, format));
 }
 
 /**
@@ -182,11 +185,13 @@ ZennFeed CLI - フィード取得コマンド
   --type TYPE         フィードタイプ (all, topic, user) (デフォルト: all)
   --keyword KEYWORD   トピックまたはユーザー名 (typeがtopicまたはuserの場合は必須)
   --count COUNT       取得する記事数 (デフォルト: 20)
+  --format, -f FORMAT 出力フォーマット (text, json, markdown) (デフォルト: text)
 
 例:
   zennfeed feed
   zennfeed feed --type topic --keyword typescript
   zennfeed feed --type user --keyword taktamur
+  zennfeed feed --format markdown
   `);
 }
 
@@ -198,14 +203,16 @@ function showArticleHelp() {
 ZennFeed CLI - 記事本文取得コマンド
 
 使用方法:
-  zennfeed article --url <URL>
+  zennfeed article --url <URL> [options]
 
 オプション:
   --help, -h          このヘルプメッセージを表示
   --url, -u URL       記事のURL（必須）
+  --format, -f FORMAT 出力フォーマット (text, json, markdown) (デフォルト: text)
 
 例:
   zennfeed article --url https://zenn.dev/taktamur/articles/b5a26613e7261e
+  zennfeed article --url https://zenn.dev/taktamur/articles/b5a26613e7261e --format markdown
   `);
 }
 
