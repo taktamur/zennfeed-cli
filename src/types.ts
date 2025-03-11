@@ -25,11 +25,16 @@ export type Feed = {
 };
 
 /**
+ * Markdown形式のコンテンツを表す型
+ */
+export type MarkdownContent = string;
+
+/**
  * 記事の詳細コンテンツ
  */
 export type ArticleContent = {
   title: string;
-  content: string;
+  content: MarkdownContent; // Markdown形式で保持
   author: string;
   published: string;
   url: string;

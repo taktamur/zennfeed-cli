@@ -1,4 +1,4 @@
-import { ArticleContent, Result } from "./types.ts";
+import { ArticleContent, MarkdownContent, Result } from "./types.ts";
 import {
   DOMParser,
   Element,
@@ -215,24 +215,25 @@ function extractArticleContent(html: string, url: string): ArticleContent {
     mainElement = document.querySelector("article");
   }
 
-  // 本文テキストの抽出と整形
-  let mainText = "";
+  // 本文をMarkdown形式で抽出
+  let mainContent = "";
   if (mainElement) {
-    mainText = extractTextFromElement(mainElement);
+    mainContent = extractMarkdownFromElement(mainElement);
   }
 
   // 不要なテキストを削除
-  mainText = mainText
+  mainContent = mainContent
     .replace(/バッジを贈って著者を応援しよう.*/gs, "")
     .replace(/Discussion.*/gs, "")
     .replace(/目次.*/gs, "");
 
-  result.content = mainText.trim();
+  result.content = mainContent.trim();
 
   // タイトルがまだ取得できていない場合、文章の最初の部分から推測
-  if (!result.title && mainText.length > 10) {
+  if (!result.title && mainContent.length > 10) {
     // 最初の文またはセクションをタイトルとして使用
-    const firstSentence = mainText.split(/\.\s+/)[0].trim();
+    const plainText = mainContent.replace(/[#*`_~\[\]\(\)]/g, ""); // Markdownの記号を削除
+    const firstSentence = plainText.split(/\.\s+/)[0].trim();
     if (firstSentence.length > 10 && firstSentence.length < 100) {
       result.title = firstSentence;
     }
@@ -241,24 +242,255 @@ function extractArticleContent(html: string, url: string): ArticleContent {
   return result;
 }
 
+// extractTextFromElementは使用しなくなったため削除
+
 /**
- * DOMエレメントからテキストを抽出する補助関数
+ * DOMエレメントからMarkdownを抽出する関数
  */
-function extractTextFromElement(element: Element): string {
+function extractMarkdownFromElement(element: Element): MarkdownContent {
+  // コピー要素を作成して不要なものを除外
+  const clone = element.cloneNode(true) as Element;
+
   // 不要な要素を除外
-  const scriptElements = element.querySelectorAll(
-    "script, style, svg, pre, code",
+  const scriptElements = clone.querySelectorAll(
+    "script, style, svg",
   );
   for (const el of Array.from(scriptElements)) {
     (el as Element).remove();
   }
 
-  // テキストを抽出し整形
-  const text = element.textContent
-    .replace(/\s{2,}/g, " ") // 連続する空白文字を1つのスペースに置換
-    .trim();
+  // Markdown変換
+  return convertElementToMarkdown(clone);
+}
 
-  return decodeHTMLEntities(text);
+/**
+ * HTMLエレメントをMarkdownに変換する
+ */
+function convertElementToMarkdown(element: Element): MarkdownContent {
+  let markdown = "";
+
+  // 子要素を再帰的に処理
+  for (const child of Array.from(element.childNodes)) {
+    if (child.nodeType === 3) { // テキストノード
+      markdown += decodeHTMLEntities(child.textContent.trim());
+      continue;
+    }
+
+    if (child.nodeType !== 1) continue; // 要素ノードでない場合はスキップ
+
+    const el = child as Element;
+    const tagName = el.tagName.toLowerCase();
+
+    switch (tagName) {
+      case "h1":
+        markdown += `\n\n# ${processInlineContent(el)}\n\n`;
+        break;
+      case "h2":
+        markdown += `\n\n## ${processInlineContent(el)}\n\n`;
+        break;
+      case "h3":
+        markdown += `\n\n### ${processInlineContent(el)}\n\n`;
+        break;
+      case "h4":
+        markdown += `\n\n#### ${processInlineContent(el)}\n\n`;
+        break;
+      case "h5":
+        markdown += `\n\n##### ${processInlineContent(el)}\n\n`;
+        break;
+      case "h6":
+        markdown += `\n\n###### ${processInlineContent(el)}\n\n`;
+        break;
+      case "p":
+        markdown += `\n\n${processInlineContent(el)}\n\n`;
+        break;
+      case "br":
+        markdown += "\n";
+        break;
+      case "hr":
+        markdown += "\n\n---\n\n";
+        break;
+      case "ul":
+        markdown += "\n";
+        for (const li of Array.from(el.querySelectorAll("li"))) {
+          markdown += `\n- ${processInlineContent(li)}`;
+        }
+        markdown += "\n\n";
+        break;
+      case "ol": {
+        markdown += "\n";
+        const items = Array.from(el.querySelectorAll("li"));
+        for (let i = 0; i < items.length; i++) {
+          markdown += `\n${i + 1}. ${processInlineContent(items[i])}`;
+        }
+        markdown += "\n\n";
+        break;
+      }
+      case "blockquote": {
+        const quoteContent = convertElementToMarkdown(el)
+          .trim()
+          .split("\n")
+          .map((line) => `> ${line}`)
+          .join("\n");
+        markdown += `\n\n${quoteContent}\n\n`;
+        break;
+      }
+      case "pre": {
+        const codeEl = el.querySelector("code");
+        const code = codeEl ? codeEl.textContent : el.textContent;
+        const codeClass = codeEl?.getAttribute("class") || "";
+        const lang = codeClass.replace(/^language-/, "").trim() || "";
+        markdown += `\n\n\`\`\`${lang}\n${code.trim()}\n\`\`\`\n\n`;
+        break;
+      }
+      case "code":
+        if (el.parentElement?.tagName.toLowerCase() !== "pre") {
+          markdown += `\`${el.textContent.trim()}\``;
+        }
+        break;
+      case "a": {
+        const href = el.getAttribute("href") || "";
+        markdown += `[${processInlineContent(el)}](${href})`;
+        break;
+      }
+      case "img": {
+        const src = el.getAttribute("src") || "";
+        const alt = el.getAttribute("alt") || "";
+        markdown += `![${alt}](${src})`;
+        break;
+      }
+      case "strong":
+      case "b":
+        markdown += `**${processInlineContent(el)}**`;
+        break;
+      case "em":
+      case "i":
+        markdown += `*${processInlineContent(el)}*`;
+        break;
+      case "s":
+      case "del":
+        markdown += `~~${processInlineContent(el)}~~`;
+        break;
+      case "table":
+        markdown += processTable(el);
+        break;
+      case "div":
+      case "span":
+      case "section":
+      case "article":
+        // 一般的なコンテナ要素は子要素をそのまま処理
+        markdown += convertElementToMarkdown(el);
+        break;
+      default:
+        // その他の要素は子要素をそのまま処理
+        markdown += processInlineContent(el);
+    }
+  }
+
+  return markdown.trim();
+}
+
+/**
+ * インラインコンテンツの処理
+ */
+function processInlineContent(element: Element): string {
+  let content = "";
+
+  for (const child of Array.from(element.childNodes)) {
+    if (child.nodeType === 3) { // テキストノード
+      content += decodeHTMLEntities(child.textContent.trim());
+      continue;
+    }
+
+    if (child.nodeType !== 1) continue;
+
+    const el = child as Element;
+    const tagName = el.tagName.toLowerCase();
+
+    switch (tagName) {
+      case "a": {
+        const href = el.getAttribute("href") || "";
+        content += `[${processInlineContent(el)}](${href})`;
+        break;
+      }
+      case "img": {
+        const src = el.getAttribute("src") || "";
+        const alt = el.getAttribute("alt") || "";
+        content += `![${alt}](${src})`;
+        break;
+      }
+      case "strong":
+      case "b":
+        content += `**${processInlineContent(el)}**`;
+        break;
+      case "em":
+      case "i":
+        content += `*${processInlineContent(el)}*`;
+        break;
+      case "code":
+        content += `\`${el.textContent.trim()}\``;
+        break;
+      case "s":
+      case "del":
+        content += `~~${processInlineContent(el)}~~`;
+        break;
+      case "br":
+        content += " ";
+        break;
+      default:
+        content += processInlineContent(el);
+    }
+  }
+
+  return content.trim();
+}
+
+/**
+ * テーブル要素をMarkdownに変換
+ */
+function processTable(tableElement: Element): string {
+  let markdown = "\n\n";
+
+  // ヘッダー行の処理
+  const headerRow = tableElement.querySelector("thead tr");
+  const headers: string[] = [];
+  const separators: string[] = [];
+
+  if (headerRow) {
+    for (const th of Array.from(headerRow.querySelectorAll("th"))) {
+      const text = processInlineContent(th).trim();
+      headers.push(text);
+      separators.push("-".repeat(Math.max(3, text.length)));
+    }
+  } else {
+    // ヘッダーが無い場合は最初の行をヘッダーとして扱う
+    const firstRow = tableElement.querySelector("tr");
+    if (firstRow) {
+      for (const td of Array.from(firstRow.querySelectorAll("td"))) {
+        const text = processInlineContent(td).trim();
+        headers.push(text);
+        separators.push("-".repeat(Math.max(3, text.length)));
+      }
+    }
+  }
+
+  if (headers.length > 0) {
+    markdown += `| ${headers.join(" | ")} |\n`;
+    markdown += `| ${separators.join(" | ")} |\n`;
+  }
+
+  // データ行の処理
+  const rows = tableElement.querySelectorAll("tbody tr");
+  for (const row of Array.from(rows)) {
+    const cells: string[] = [];
+    for (const td of Array.from(row.querySelectorAll("td"))) {
+      cells.push(processInlineContent(td).trim());
+    }
+    if (cells.length > 0) {
+      markdown += `| ${cells.join(" | ")} |\n`;
+    }
+  }
+
+  return markdown + "\n";
 }
 
 /**
