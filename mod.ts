@@ -73,13 +73,18 @@ async function handleFeedCommand(args: string[]) {
 
   // フィルターの構築
   let filter: FeedFilter;
-  if (type === "all") {
+  // キーワードがあり、typeが明示的に指定されていない場合は"topic"をデフォルトとする
+  const effectiveType = keyword && type === "all" ? "topic" : type;
+
+  if (effectiveType === "all") {
     filter = { type: "all" };
-  } else if (type === "topic" && keyword) {
+  } else if (effectiveType === "topic" && keyword) {
     filter = { type: "topic", keyword };
-  } else if (type === "user" && keyword) {
+  } else if (effectiveType === "user" && keyword) {
     filter = { type: "user", keyword };
-  } else if ((type === "topic" || type === "user") && !keyword) {
+  } else if (
+    (effectiveType === "topic" || effectiveType === "user") && !keyword
+  ) {
     console.error(JSON.stringify(
       {
         error: "keywordパラメータが必要です",
@@ -193,13 +198,13 @@ ZennFeed CLI - フィード取得コマンド
 
 オプション:
   --help, -h               このヘルプメッセージを表示
-  --type, -t TYPE          フィードタイプ (all, topic, user) (デフォルト: all)
+  --type, -t TYPE          フィードタイプ (all, topic, user) (デフォルト: キーワードがある場合はtopic、ない場合はall)
   --count, -c COUNT        取得する記事数 (デフォルト: 20)
   --format, -f FORMAT      出力フォーマット (text, json, markdown) (デフォルト: text)
 
 例:
   zennfeed feed                             # 全記事を取得
-  zennfeed feed typescript                  # キーワード "typescript" でフィルタリング (デフォルトではトピック)
+  zennfeed feed typescript                  # トピック "typescript" の記事を取得 (キーワード指定時はデフォルトでトピック)
   zennfeed feed typescript --type topic     # トピック "typescript" の記事を取得
   zennfeed feed taktamur --type user        # ユーザー "taktamur" の記事を取得
   zennfeed feed --format markdown           # Markdown形式で出力
