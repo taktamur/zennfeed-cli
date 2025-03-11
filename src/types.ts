@@ -42,3 +42,8 @@ export type FeedFilter =
   | { type: "all" }
   | { type: "topic"; keyword: string }
   | { type: "user"; keyword: string };
+
+/**
+ * 出力フォーマットの種類
+ */
+export type OutputFormat = "text" | "json" | "markdown";
