@@ -1,5 +1,11 @@
 import { parseFeed } from "https://deno.land/x/rss@1.0.0/mod.ts";
-import { Article, ExtendedFeedEntry, FeedFilter, Result } from "./types.ts";
+import {
+  Article,
+  ExtendedFeedEntry,
+  Feed,
+  FeedFilter,
+  Result,
+} from "./types.ts";
 import { formatDate } from "./utils.ts";
 
 /**
@@ -20,7 +26,7 @@ export function buildFeedUrl(filter: FeedFilter): string {
  */
 export async function fetchLatestArticles(
   options: { count?: number; filter?: FeedFilter } = {},
-): Promise<Result<{ articles: Article[]; feedUrl: string }, string>> {
+): Promise<Result<Feed, string>> {
   try {
     const { count = 20, filter = { type: "all" } } = options;
     const url = buildFeedUrl(filter);
