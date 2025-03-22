@@ -5,6 +5,7 @@ import { fetchLatestArticles } from "./src/api.ts";
 import { extractContent } from "./src/content.ts";
 import { FeedFilter, OutputFormat } from "./src/types.ts";
 import { formatArticleOutput, formatFeedOutput } from "./src/format.ts";
+import { searchArticles } from "./src/search.ts";
 
 /**
  * メイン関数 - サブコマンドをハンドリング
@@ -44,14 +45,15 @@ async function main() {
  */
 async function handleFeedCommand(args: string[]) {
   const parsedArgs = parse(args, {
-    string: ["count", "type", "format"],
+    string: ["count", "type", "format", "search"],
     boolean: ["help"],
-    default: { count: "20", type: "all", format: "text" },
+    default: { count: "20", type: "all", format: "text", search: "" },
     alias: {
       h: "help",
       f: "format",
       t: "type",
       c: "count",
+      s: "search",
     },
   });
 
@@ -70,6 +72,7 @@ async function handleFeedCommand(args: string[]) {
   const count = parseInt(parsedArgs.count);
   const type = parsedArgs.type as "all" | "topic" | "user";
   const format = parsedArgs.format as OutputFormat;
+  const searchQuery = parsedArgs.search || "";
 
   // フィルターの構築
   let filter: FeedFilter;
@@ -109,9 +112,14 @@ async function handleFeedCommand(args: string[]) {
     Deno.exit(1);
   }
 
+  // 検索クエリがある場合は、記事をフィルタリング
+  const filteredArticles = searchQuery
+    ? searchArticles(result.value.articles, searchQuery)
+    : result.value.articles;
+
   // 指定されたフォーマットで出力
   console.log(
-    formatFeedOutput(result.value.articles, format, result.value.feedUrl),
+    formatFeedOutput(filteredArticles, format, result.value.feedUrl),
   );
 }
 
@@ -201,6 +209,7 @@ ZennFeed CLI - フィード取得コマンド
   --type, -t TYPE          フィードタイプ (all, topic, user) (デフォルト: キーワードがある場合はtopic、ない場合はall)
   --count, -c COUNT        取得する記事数 (デフォルト: 20)
   --format, -f FORMAT      出力フォーマット (text, json, markdown) (デフォルト: text)
+  --search, -s QUERY       タイトルと著者名でフィルタリングするキーワード検索
 
 例:
   zennfeed feed                             # 全記事を取得
@@ -208,6 +217,8 @@ ZennFeed CLI - フィード取得コマンド
   zennfeed feed typescript --type topic     # トピック "typescript" の記事を取得
   zennfeed feed taktamur --type user        # ユーザー "taktamur" の記事を取得
   zennfeed feed --format markdown           # Markdown形式で出力
+  zennfeed feed --search "Docker"           # タイトルか著者名に "Docker" を含む記事を検索
+  zennfeed feed typescript --search "API"   # "typescript" トピックの中から "API" を含む記事を検索
   `);
 }
 
