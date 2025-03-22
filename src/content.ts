@@ -165,8 +165,6 @@ function extractArticleContent(html: string, url: string): ArticleContent {
     }
   }
 
-
-
   // 本文の抽出
   let mainElement = null;
 
