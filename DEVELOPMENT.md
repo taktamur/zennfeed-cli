@@ -51,3 +51,17 @@ deno compile --allow-net mod.ts
 - 記事タグの抽出精度の向上
 - ~~出力形式の選択肢追加（JSON 以外）~~ ✅ issue #14 で実装完了
 - ~~feedコマンドでフィードURLを表示~~ ✅ issue #22 で実装完了
+- ~~キーワード検索機能の追加~~ ✅ issue #16 で実装完了
+
+## キーワード検索機能 (issue #16)
+
+`--search` または `-s` オプションを使用して、取得した記事の中からキーワードを含む記事をフィルタリングできます。
+現在の実装では、記事タイトルと著者名に対する検索をサポートしています。
+
+```bash
+# 例: 「Docker」を含む記事を検索
+zennfeed feed --search "Docker"
+
+# 例: typeと組み合わせて使用
+zennfeed feed typescript --search "API"
+```
