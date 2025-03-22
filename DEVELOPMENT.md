@@ -4,28 +4,17 @@
 
 ### Git フック
 
-コミット前に自動的に `deno fmt` を実行するように設定することをお勧めします：
+コミット前に自動的に `deno fmt` と `deno lint` を実行するようになっています：
 
 ```bash
-# .git/hooks/pre-commitファイルを作成
-cat > .git/hooks/pre-commit << 'EOF'
-#!/bin/sh
-
-# コミット前に自動的にdeno fmtを実行
-files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.ts$' || true)
-if [ -n "$files" ]; then
-  echo "Running deno fmt..."
-  deno fmt $files
-  # ファイルをステージング領域に再度追加
-  echo $files | xargs git add
-fi
-EOF
-
-# 実行権限を付与
-chmod +x .git/hooks/pre-commit
+# .huskyディレクトリが用意されていて、pre-commitフックが設定されています
+# 以下のように動作します:
+# 1. コミットされるTypeScriptファイルに対して自動的にフォーマットを適用
+# 2. フォーマットされたファイルを再度ステージング
+# 3. lintを実行し、エラーがあればコミットを中止
 ```
 
-この設定により、コミット時に変更されたTypeScriptファイルに対して自動的にフォーマットが適用されます。
+この設定により、GitHub Actionsのチェックでエラーが発生することを防止できます。
 
 ## 開発コマンド
 
