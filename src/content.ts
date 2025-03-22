@@ -165,38 +165,6 @@ function extractArticleContent(html: string, url: string): ArticleContent {
     }
   }
 
-  // 3. コンテンツからの一般的なタグの検出（バックアップ）
-  if (result.tags.length === 0) {
-    const textContent = document.body ? document.body.textContent : "";
-    const potentialTags = [
-      "macOS",
-      "Docker",
-      "TypeScript",
-      "JavaScript",
-      "React",
-      "Vue",
-      "Node.js",
-      "Python",
-      "Go",
-      "Rust",
-      "AWS",
-      "Azure",
-      "GCP",
-      "Kubernetes",
-    ];
-
-    for (const tag of potentialTags) {
-      if (textContent.includes(tag) && !result.tags.includes(tag)) {
-        result.tags.push(tag);
-      }
-    }
-
-    // "tech" タグは頻出するので、コンテンツに含まれていない場合でもデフォルトで追加
-    if (!result.tags.includes("tech")) {
-      result.tags.push("tech");
-    }
-  }
-
   // 本文の抽出
   let mainElement = null;
 
